@@ -2,7 +2,7 @@
 
 var connect = require('connect'),
 	socketio = require('socket.io'),
-	midi = require('midi.io');
+	midi = require(__dirname + '/../../lib/midi.io');
 
 var server = connect.createServer(),
 	io = socketio.listen(server);
