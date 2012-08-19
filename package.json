@@ -17,5 +17,5 @@
 		"node": ">=0.8.0"
 	},
 	"main": "./lib/midi.io",
-	"version": "0.1.0"
+	"version": "0.1.1"
 }

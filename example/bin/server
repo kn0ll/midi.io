@@ -7,6 +7,8 @@ var connect = require('connect'),
 var server = connect.createServer(),
 	io = socketio.listen(server);
 
+// a simple midi.io server, which exposes midi devices
+// and midi messages via http and socket.io, respectively.
 server.use(midi(io));
 server.use(connect.static("#{__dirname}/../public"));
 server.listen(9000);
