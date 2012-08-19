@@ -1,6 +1,6 @@
 # midi.io
 
-a library for capturing midi hardware input in the browser. it is a nodejs middleware which listens for midi input on and forwards the midi message to the client via socket.io. [formatted documentation](http://catshirt.github.com/midi.io) is available.
+a library for capturing midi hardware input in the browser. it is a nodejs middleware which listens for midi input on and forwards the midi message to the client via socket.io.
 
 ## installation
 
@@ -63,3 +63,10 @@ the following code shows the client library in action:
     midi_device.on('midi', function(msg) {
       console.log('got midi from device 1', msg);
     });
+
+## building documentation
+
+[formatted documentation](http://catshirt.github.com/midi.io) is available and can be built using groc:
+
+    npm install -g groc
+    groc lib/**/*.js src/**/*.js readme.md
