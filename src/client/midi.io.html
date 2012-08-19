@@ -1,0 +1,56 @@
+<!DOCTYPE html><html lang="en"><head><title>src/client/midi.io</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../"><meta name="groc-document-path" content="src/client/midi.io"><meta name="groc-project-path" content="src/client/midi.io.js"><meta name="groc-github-url" content="https://github.com/catshirt/catshirt"><link rel="stylesheet" type="text/css" media="all" href="../../assets/style.css"><script type="text/javascript" src="../../assets/behavior.js"></script><body><div id="meta"><div class="file-path"><a href="https://github.com/catshirt/catshirt/blob/master/src/client/midi.io.js">src/client/midi.io.js</a></div></div><div id="document"><div class="segment"><div class="comments"><div class="wrapper"><h1 id="midiiojs">midi.io.js</h1>
+
+<p>a client library used for accessing midi.io apis.</p></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p><code>MidiDevice</code> is a backbone model responsible
+for listening for midi messages from a specific device.</p></div></div><div class="code"><div class="wrapper"><span class="kd">var</span> <span class="nx">MidiDevice</span> <span class="o">=</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">Model</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>the url here is used by <code>initialize</code>
+to determine the proper socket.io namespace to connect to.</p></div></div><div class="code"><div class="wrapper">  <span class="nx">urlRoot</span><span class="o">:</span> <span class="s1">&#39;/midi/devices&#39;</span><span class="p">,</span>
+
+  <span class="nx">defaults</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">id</span><span class="o">:</span> <span class="mi">0</span>
+  <span class="p">},</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>when the model is created, we immediately connect to socket.io
+and begin rebroadcasting all incoming midi events.</p></div></div><div class="code"><div class="wrapper">  <span class="nx">initialize</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">socket</span> <span class="o">=</span> <span class="nx">io</span><span class="p">.</span><span class="nx">connect</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">url</span><span class="p">());</span>
+    <span class="nx">socket</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;midi&#39;</span><span class="p">,</span> <span class="nx">_</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">_sendMidi</span><span class="p">,</span> <span class="k">this</span><span class="p">));</span>
+  <span class="p">},</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>_sendMidi is used for proxying socket.io messages
+and rebroadcasting them on the model's event emitter.</p></div></div><div class="code"><div class="wrapper">  <span class="nx">_sendMidi</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">msg</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">trigger</span><span class="p">(</span><span class="s1">&#39;midi&#39;</span><span class="p">,</span> <span class="nx">msg</span><span class="p">)</span>
+  <span class="p">}</span>
+
+<span class="p">},</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">Events</span><span class="p">);</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p><code>MidiDevices</code> is a backbone collection responsible
+for reading meta information about midi devices.</p></div></div><div class="code"><div class="wrapper"><span class="kd">var</span> <span class="nx">MidiDevices</span> <span class="o">=</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">Collection</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+
+  <span class="nx">url</span><span class="o">:</span> <span class="s1">&#39;/midi/devices&#39;</span><span class="p">,</span>
+  <span class="nx">model</span><span class="o">:</span> <span class="nx">MidiDevice</span><span class="p">,</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>the <code>events</code> hash is used for mapping
+midi messages to functions. whenever a midi event
+is triggered on any model, it will check
+if that event has an associated function in <code>events</code>
+and trigger it. <code>events</code> is a 3 dimensional hash,
+where the first and second keys map to the first
+and second parts of the midi message, respectively.</p></div></div><div class="code"><div class="wrapper">  <span class="nx">events</span><span class="o">:</span> <span class="p">{},</span>
+
+  <span class="nx">initialize</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+
+    <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>whenever a midi note from any device is received,
+check if it has a mapped function in <code>events</code>,
+and call it if applicable.</p></div></div><div class="code"><div class="wrapper">    <span class="nx">self</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;midi&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">msg</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">events</span><span class="p">[</span><span class="nx">msg</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">events</span><span class="p">[</span><span class="nx">msg</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="nx">msg</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span> <span class="p">{</span>
+          <span class="k">this</span><span class="p">.</span><span class="nx">events</span><span class="p">[</span><span class="nx">msg</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="nx">msg</span><span class="p">[</span><span class="mi">1</span><span class="p">]](</span><span class="nx">msg</span><span class="p">);</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">});</span>
+
+  <span class="p">},</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p><code>learn</code> takes a function reference and ties it's execution
+to the midi event triggered following the call to learn,
+by saving the function in the <code>events</code> hash using the midi
+message to build the key.</p></div></div><div class="code"><div class="wrapper">  <span class="nx">learn</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">cb</span><span class="p">)</span> <span class="p">{</span>
+
+    <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>on the first midi event, unbind the <code>learn</code> listener
+and add the callback to the <code>events</code> hash.</p></div></div><div class="code"><div class="wrapper">    <span class="nx">self</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;midi&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">learn</span><span class="p">(</span><span class="nx">msg</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">self</span><span class="p">.</span><span class="nx">events</span><span class="p">[</span><span class="nx">msg</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="nx">self</span><span class="p">.</span><span class="nx">events</span><span class="p">[</span><span class="nx">msg</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">||</span> <span class="p">{};</span>
+      <span class="nx">self</span><span class="p">.</span><span class="nx">events</span><span class="p">[</span><span class="nx">msg</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="nx">msg</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="nx">cb</span><span class="p">;</span>
+      <span class="nx">self</span><span class="p">.</span><span class="nx">off</span><span class="p">(</span><span class="s1">&#39;midi&#39;</span><span class="p">,</span> <span class="nx">learn</span><span class="p">);</span>
+    <span class="p">});</span>
+
+  <span class="p">}</span>
+
+<span class="p">},</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">Events</span><span class="p">);</span></div></div></div></div></body></html>

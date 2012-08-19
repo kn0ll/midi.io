@@ -1,0 +1,31 @@
+<!DOCTYPE html><html lang="en"><head><title>src/models/devices</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../"><meta name="groc-document-path" content="src/models/devices"><meta name="groc-project-path" content="src/models/devices.js"><meta name="groc-github-url" content="https://github.com/catshirt/catshirt"><link rel="stylesheet" type="text/css" media="all" href="../../assets/style.css"><script type="text/javascript" src="../../assets/behavior.js"></script><body><div id="meta"><div class="file-path"><a href="https://github.com/catshirt/catshirt/blob/master/src/models/devices.js">src/models/devices.js</a></div></div><div id="document"><div class="segment"><div class="comments"><div class="wrapper"><h1 id="devicesjs">devices.js</h1>
+
+<p>provides a simple Backbone interface for accessing
+midi input in node.js.</p></div></div><div class="code"><div class="wrapper"><span class="kd">var</span> <span class="nx">Backbone</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;backbone&#39;</span><span class="p">),</span>
+  <span class="nx">midi</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;midi&#39;</span><span class="p">);</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">Collection</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>whenever a new collection is created,
+we create a new instance of the midi accessor.</p></div></div><div class="code"><div class="wrapper">  <span class="nx">initialize</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">Backbone</span><span class="p">.</span><span class="nx">Collection</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">initialize</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">);</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">input</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">midi</span><span class="p">.</span><span class="nx">input</span><span class="p">();</span>
+  <span class="p">},</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>the <code>sync</code> method is responsible for finding all
+available midi devices and adding them to the collection.
+at this moment, this assumes <code>sync</code> is only ever called
+in a <code>read</code> capacity.</p></div></div><div class="code"><div class="wrapper">  <span class="nx">sync</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">method</span><span class="p">,</span> <span class="nx">model</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+
+    <span class="kd">var</span> <span class="nx">input</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">input</span><span class="p">,</span>
+      <span class="nx">inputs</span> <span class="o">=</span> <span class="p">[];</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">input</span><span class="p">.</span><span class="nx">getPortCount</span><span class="p">();</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">inputs</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span>
+        <span class="nx">id</span><span class="o">:</span> <span class="nx">i</span><span class="p">,</span>
+        <span class="nx">name</span><span class="o">:</span> <span class="nx">input</span><span class="p">.</span><span class="nx">getPortName</span><span class="p">(</span><span class="nx">i</span><span class="p">)</span>
+      <span class="p">});</span>
+    <span class="p">}</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">reset</span><span class="p">(</span><span class="nx">inputs</span><span class="p">);</span>
+    <span class="nx">options</span><span class="p">.</span><span class="nx">success</span><span class="p">(</span><span class="nx">inputs</span><span class="p">);</span>
+
+  <span class="p">}</span>
+
+<span class="p">});</span></div></div></div></div></body></html>

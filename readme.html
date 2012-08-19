@@ -1,0 +1,80 @@
+<!DOCTYPE html><html lang="en"><head><title>readme</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content=""><meta name="groc-document-path" content="readme"><meta name="groc-project-path" content="readme.md"><meta name="groc-github-url" content="https://github.com/catshirt/catshirt"><link rel="stylesheet" type="text/css" media="all" href="assets/style.css"><script type="text/javascript" src="assets/behavior.js"></script><body><div id="meta"><div class="file-path"><a href="https://github.com/catshirt/catshirt/blob/master/readme.md">readme.md</a></div></div><div id="document"><div class="segment"><div class="comments"><div class="wrapper"><h1 id="midiio">midi.io</h1>
+
+<p>a library for capturing midi hardware input in the browser. it is a nodejs middleware which listens for midi input on and forwards the midi message to the client via socket.io.</p>
+
+<h2 id="installation">installation</h2>
+
+<pre><code>$ npm install midi.io  
+</code></pre>
+
+<h2 id="use">use</h2>
+
+<p>midi.io's primary functionality is on the server. it is responsible for creatting http and websocket routes your client can use to learn about midi devices. additionally, midi.io serves a backbone client library to use for accessing these resources. the server and client components can be used together or independently. a full <a href="https://github.com/catshirt/midi.io/tree/master/example">client and server example</a> is contained in the repository for reference.</p>
+
+<p>a basic midi.io server creates the following resources:</p>
+
+<ul>
+<li><code>GET /midi/devices</code> - show all active midi devices  </li>
+<li><code>GET /midi/devices/:id</code> - show details for a specific midi device</li>
+<li><code>WS /midi/devices/:id</code> - a socket.io namespace for receiving midi messages from a specific device</li>
+</ul>
+
+<h2 id="getting-started-server">getting started (server)</h2>
+
+<p>to enable midi.io, simply pass it into your http server as a middleware, with your socket.io instance as it's first argument. the following example is the complete code for a simple midi.io server:</p>
+
+<pre><code>var connect = require('connect'),
+  socketio = require('socket.io'),
+  midi = require('midi.io');
+
+var server = connect.createServer(),
+  io = socketio.listen(server);
+
+server.use(midi(io));
+server.listen(9000);
+</code></pre>
+
+<h2 id="getting-started-client">getting started (client)</h2>
+
+<p>the midi.io client library is served via <code>/midi.io/midi.io.js</code> and requires backbone. it creates a single model and a single collection used to manage your midi devices:</p>
+
+<ul>
+<li><code>MidiDevice</code> - a backbone model which emits midi events</li>
+<li><code>MidiDevices</code> - a backbone collection used to browse and select midi devices  </li>
+</ul>
+
+<p>the following code shows the client library in action:</p>
+
+<pre><code>var devices = new MidiDevices(),
+  midi_device = new MidiDevice({ id: 1 });
+
+// get all active midi devices
+devices.fetch({
+  success: function() {
+    console.log('found devices', devices.models);
+  }
+});
+
+// tie the next inbound midi message to a specific function
+devices.learn(function() {
+  console.log('the next midi button pressed will always log me!');
+});
+
+// log all midi events for all devices
+devices.on('midi', function(msg) {
+  console.log('got midi', msg);
+});
+
+// only log midi events from device 1
+midi_device.on('midi', function(msg) {
+  console.log('got midi from device 1', msg);
+});
+</code></pre>
+
+<h2 id="building-documentation">building documentation</h2>
+
+<p><a href="http://catshirt.github.com/midi.io">formatted documentation</a> is available and can be built using groc:</p>
+
+<pre><code>npm install -g groc
+groc lib/**/*.js src/**/*.js readme.md
+</code></pre></div></div></div></div></body></html>
